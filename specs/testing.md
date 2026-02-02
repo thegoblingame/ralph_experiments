@@ -1,5 +1,14 @@
 # Testing Specification
 
+## Implementation Status
+
+| Test File | Status |
+|-----------|--------|
+| `tests/calculator.test.js` | Created (~70 tests) |
+| `tests/history.test.js` | Created (~25 tests) |
+| `tests/keyboard.test.js` | Created (~50 tests) |
+| `tests/ui.test.js` | **NOT CREATED** - will be written after HTML implementation |
+
 ## Testing Framework
 - **Jest**: Primary test runner
 - **jsdom**: DOM environment for browser API simulation
@@ -171,7 +180,9 @@ describe('Keyboard Modifiers', () => {
 });
 ```
 
-### 4. UI Integration Tests (`ui.test.js`)
+### 4. UI Integration Tests (`ui.test.js`) - NOT YET CREATED
+
+> **Note:** These tests will be written after the HTML implementation is complete, so the tests can match the actual DOM structure.
 
 #### Button Clicks
 ```javascript

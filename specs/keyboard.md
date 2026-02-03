@@ -1,5 +1,8 @@
 # Keyboard Support Specification
 
+## Implementation Status
+This feature has not been implemented yet.
+
 ## Overview
 Users can operate the calculator entirely via keyboard, in addition to mouse/touch input.
 

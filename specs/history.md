@@ -1,5 +1,8 @@
 # History Feature Specification
 
+## Implementation Status
+This feature has not been implemented yet.
+
 ## Overview
 The calculator maintains a history of all calculations performed by the user. History persists across page reloads using localStorage.
 

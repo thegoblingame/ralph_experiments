@@ -1,5 +1,8 @@
 # Calculator Logic Specification
 
+## Implementation Status
+This feature has not been implemented yet.
+
 ## Basic Operations
 
 ### Arithmetic

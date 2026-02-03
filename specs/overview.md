@@ -1,5 +1,8 @@
 # Calculator Project Overview
 
+## Implementation Status
+This feature has not been implemented yet.
+
 ## Project Summary
 A web-based scientific calculator that runs by opening an HTML file directly in the browser (no server required), replicating the functionality and visual style of Google's calculator widget.
 

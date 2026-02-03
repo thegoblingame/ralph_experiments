@@ -1,7 +1,3 @@
-study specs/overview.md, then pick the most important feature to implement - your task is to implement then to validate that the feature's functionality works.
+study specs/overview.md, then pick the most important feature to implement - your task is to implement then to use the tests present in the tests folder to validate the functionality of a feature.
 
-IMPORTANT:
-
-Use the tests present in the tests folder to validate the functionality of whatever feature you are working on
-
-When you are finished with the feature, update any spec files in the specs folder which you believe are relevant to the just completed feature, and update the overview.md file. Then, exit the session.
+When the feature has been successfully implemented, update the spec file that pairs with the feature you just implemented, indicating which aspects of the feature have been successfully implemented. Then, exit the session.

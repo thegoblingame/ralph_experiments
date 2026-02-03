@@ -1,5 +1,8 @@
 # UI Design Specification
 
+## Implementation Status
+This feature has not been implemented yet.
+
 ## Layout Structure
 
 ### Container

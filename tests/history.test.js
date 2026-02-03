@@ -4,8 +4,6 @@
  * Pure logic tests - no DOM simulation
  */
 
-const History = require('../src/history');
-
 // Mock localStorage
 const localStorageMock = (() => {
   let store = {};
@@ -19,8 +17,13 @@ const localStorageMock = (() => {
   };
 })();
 
-// Mock global localStorage for the module
-global.localStorage = localStorageMock;
+// Override localStorage in jsdom environment (MUST be before require)
+Object.defineProperty(global, 'localStorage', {
+  value: localStorageMock,
+  writable: true
+});
+
+const History = require('../src/history');
 
 beforeEach(() => {
   localStorageMock.reset();

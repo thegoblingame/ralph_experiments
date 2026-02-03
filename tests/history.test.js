@@ -1,9 +1,8 @@
 /**
  * History Feature Tests
  * Tests for calculation history and localStorage persistence
+ * Pure logic tests - no DOM simulation
  */
-
-let History;
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -18,13 +17,18 @@ const localStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+// Override localStorage in jsdom environment (MUST be before require)
+Object.defineProperty(global, 'localStorage', {
+  value: localStorageMock,
+  writable: true
+});
+
+const History = require('../src/history');
 
 beforeEach(() => {
   localStorageMock.reset();
   localStorageMock.getItem.mockClear();
   localStorageMock.setItem.mockClear();
-  History = require('../public/calculator.html').History;
   History.clear();
 });
 

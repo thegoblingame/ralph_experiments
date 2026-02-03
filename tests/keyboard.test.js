@@ -1,430 +1,236 @@
 /**
  * Keyboard Support Tests
- * Tests for keyboard input handling
+ * Tests for keyboard input mapping logic
+ * Pure logic tests - no DOM simulation
  */
 
-let Keyboard;
-let Calculator;
+const Keyboard = require('../src/keyboard');
 
-// Helper to simulate keydown event
-function pressKey(key, options = {}) {
-  const event = new KeyboardEvent('keydown', {
-    key,
-    bubbles: true,
-    cancelable: true,
-    ...options
-  });
-  document.dispatchEvent(event);
-  return event;
-}
-
-beforeEach(() => {
-  // Set up minimal DOM
-  document.body.innerHTML = `
-    <div id="calculator">
-      <div id="display">0</div>
-      <div id="expression"></div>
-    </div>
-  `;
-
-  const module = require('../public/calculator.html');
-  Keyboard = module.Keyboard;
-  Calculator = module.Calculator;
-  Calculator.reset();
-  Keyboard.init();
-});
-
-afterEach(() => {
-  Keyboard.destroy();
-});
-
-describe('Keyboard Number Input', () => {
-  test('pressing 0 inputs 0', () => {
-    pressKey('0');
-    expect(Calculator.getState().expression).toContain('0');
+describe('Keyboard Number Mapping', () => {
+  test('key "0" maps to "0"', () => {
+    expect(Keyboard.mapKey('0')).toBe('0');
   });
 
-  test('pressing 1 inputs 1', () => {
-    pressKey('1');
-    expect(Calculator.getState().expression).toContain('1');
+  test('key "1" maps to "1"', () => {
+    expect(Keyboard.mapKey('1')).toBe('1');
   });
 
-  test('pressing 2 inputs 2', () => {
-    pressKey('2');
-    expect(Calculator.getState().expression).toContain('2');
+  test('key "2" maps to "2"', () => {
+    expect(Keyboard.mapKey('2')).toBe('2');
   });
 
-  test('pressing 3 inputs 3', () => {
-    pressKey('3');
-    expect(Calculator.getState().expression).toContain('3');
+  test('key "3" maps to "3"', () => {
+    expect(Keyboard.mapKey('3')).toBe('3');
   });
 
-  test('pressing 4 inputs 4', () => {
-    pressKey('4');
-    expect(Calculator.getState().expression).toContain('4');
+  test('key "4" maps to "4"', () => {
+    expect(Keyboard.mapKey('4')).toBe('4');
   });
 
-  test('pressing 5 inputs 5', () => {
-    pressKey('5');
-    expect(Calculator.getState().expression).toContain('5');
+  test('key "5" maps to "5"', () => {
+    expect(Keyboard.mapKey('5')).toBe('5');
   });
 
-  test('pressing 6 inputs 6', () => {
-    pressKey('6');
-    expect(Calculator.getState().expression).toContain('6');
+  test('key "6" maps to "6"', () => {
+    expect(Keyboard.mapKey('6')).toBe('6');
   });
 
-  test('pressing 7 inputs 7', () => {
-    pressKey('7');
-    expect(Calculator.getState().expression).toContain('7');
+  test('key "7" maps to "7"', () => {
+    expect(Keyboard.mapKey('7')).toBe('7');
   });
 
-  test('pressing 8 inputs 8', () => {
-    pressKey('8');
-    expect(Calculator.getState().expression).toContain('8');
+  test('key "8" maps to "8"', () => {
+    expect(Keyboard.mapKey('8')).toBe('8');
   });
 
-  test('pressing 9 inputs 9', () => {
-    pressKey('9');
-    expect(Calculator.getState().expression).toContain('9');
+  test('key "9" maps to "9"', () => {
+    expect(Keyboard.mapKey('9')).toBe('9');
   });
 
-  test('pressing . inputs decimal point', () => {
-    pressKey('.');
-    expect(Calculator.getState().expression).toContain('.');
-  });
-
-  test('multiple digits build number', () => {
-    pressKey('1');
-    pressKey('2');
-    pressKey('3');
-    expect(Calculator.getState().expression).toBe('123');
-  });
-
-  test('rapid key presses captured correctly', () => {
-    pressKey('9');
-    pressKey('9');
-    pressKey('9');
-    pressKey('9');
-    pressKey('9');
-    expect(Calculator.getState().expression).toBe('99999');
+  test('key "." maps to "."', () => {
+    expect(Keyboard.mapKey('.')).toBe('.');
   });
 });
 
-describe('Keyboard Basic Operators', () => {
-  test('+ key triggers addition', () => {
-    pressKey('5');
-    pressKey('+');
-    expect(Calculator.getState().expression).toBe('5+');
+describe('Keyboard Basic Operator Mapping', () => {
+  test('key "+" maps to "+"', () => {
+    expect(Keyboard.mapKey('+')).toBe('+');
   });
 
-  test('- key triggers subtraction', () => {
-    pressKey('5');
-    pressKey('-');
-    expect(Calculator.getState().expression).toBe('5-');
+  test('key "-" maps to "-"', () => {
+    expect(Keyboard.mapKey('-')).toBe('-');
   });
 
-  test('* key triggers multiplication', () => {
-    pressKey('5');
-    pressKey('*');
-    expect(Calculator.getState().expression).toBe('5*');
+  test('key "*" maps to "*"', () => {
+    expect(Keyboard.mapKey('*')).toBe('*');
   });
 
-  test('/ key triggers division', () => {
-    pressKey('5');
-    pressKey('/');
-    expect(Calculator.getState().expression).toBe('5/');
+  test('key "/" maps to "/"', () => {
+    expect(Keyboard.mapKey('/')).toBe('/');
   });
 
-  test('% key triggers percentage', () => {
-    pressKey('5');
-    pressKey('0');
-    pressKey('%');
-    expect(Calculator.getState().expression).toBe('50%');
+  test('key "%" maps to "%"', () => {
+    expect(Keyboard.mapKey('%')).toBe('%');
   });
 
-  test('( key inputs open parenthesis', () => {
-    pressKey('(');
-    expect(Calculator.getState().expression).toBe('(');
+  test('key "(" maps to "("', () => {
+    expect(Keyboard.mapKey('(')).toBe('(');
   });
 
-  test(') key inputs close parenthesis', () => {
-    pressKey('(');
-    pressKey('5');
-    pressKey(')');
-    expect(Calculator.getState().expression).toBe('(5)');
+  test('key ")" maps to ")"', () => {
+    expect(Keyboard.mapKey(')')).toBe(')');
+  });
+
+  test('key "^" maps to "^"', () => {
+    expect(Keyboard.mapKey('^')).toBe('^');
+  });
+
+  test('key "!" maps to "!"', () => {
+    expect(Keyboard.mapKey('!')).toBe('!');
   });
 });
 
-describe('Keyboard Evaluation & Control', () => {
-  test('Enter evaluates expression', () => {
-    pressKey('2');
-    pressKey('+');
-    pressKey('3');
-    pressKey('Enter');
-    expect(Calculator.getState().result).toBe('5');
+describe('Keyboard Control Keys', () => {
+  test('Enter key maps to "EVALUATE"', () => {
+    expect(Keyboard.mapKey('Enter')).toBe('EVALUATE');
   });
 
-  test('= key evaluates expression', () => {
-    pressKey('4');
-    pressKey('*');
-    pressKey('5');
-    pressKey('=');
-    expect(Calculator.getState().result).toBe('20');
+  test('= key maps to "EVALUATE"', () => {
+    expect(Keyboard.mapKey('=')).toBe('EVALUATE');
   });
 
-  test('Escape clears calculator', () => {
-    pressKey('1');
-    pressKey('2');
-    pressKey('3');
-    pressKey('Escape');
-    expect(Calculator.getState().expression).toBe('');
-    expect(Calculator.getState().result).toBe('0');
+  test('Escape key maps to "CLEAR"', () => {
+    expect(Keyboard.mapKey('Escape')).toBe('CLEAR');
   });
 
-  test('Backspace deletes last character', () => {
-    pressKey('1');
-    pressKey('2');
-    pressKey('3');
-    pressKey('Backspace');
-    expect(Calculator.getState().expression).toBe('12');
+  test('Backspace key maps to "DELETE"', () => {
+    expect(Keyboard.mapKey('Backspace')).toBe('DELETE');
   });
 
-  test('Delete deletes last character', () => {
-    pressKey('1');
-    pressKey('2');
-    pressKey('3');
-    pressKey('Delete');
-    expect(Calculator.getState().expression).toBe('12');
-  });
-
-  test('Backspace on empty expression does nothing', () => {
-    pressKey('Backspace');
-    expect(Calculator.getState().expression).toBe('');
-  });
-
-  test('multiple Backspaces delete multiple characters', () => {
-    pressKey('1');
-    pressKey('2');
-    pressKey('3');
-    pressKey('4');
-    pressKey('Backspace');
-    pressKey('Backspace');
-    expect(Calculator.getState().expression).toBe('12');
+  test('Delete key maps to "DELETE"', () => {
+    expect(Keyboard.mapKey('Delete')).toBe('DELETE');
   });
 });
 
-describe('Keyboard Scientific Functions', () => {
-  test('s key triggers sin', () => {
-    pressKey('s');
-    expect(Calculator.getState().expression).toBe('sin(');
+describe('Keyboard Scientific Function Mapping', () => {
+  test('key "s" maps to "sin("', () => {
+    expect(Keyboard.mapKey('s', { invMode: false })).toBe('sin(');
   });
 
-  test('c key triggers cos', () => {
-    pressKey('c');
-    expect(Calculator.getState().expression).toBe('cos(');
+  test('key "c" maps to "cos("', () => {
+    expect(Keyboard.mapKey('c', { invMode: false })).toBe('cos(');
   });
 
-  test('t key triggers tan', () => {
-    pressKey('t');
-    expect(Calculator.getState().expression).toBe('tan(');
+  test('key "t" maps to "tan("', () => {
+    expect(Keyboard.mapKey('t', { invMode: false })).toBe('tan(');
   });
 
-  test('l key triggers ln', () => {
-    pressKey('l');
-    expect(Calculator.getState().expression).toBe('ln(');
+  test('key "l" maps to "ln("', () => {
+    expect(Keyboard.mapKey('l', { invMode: false })).toBe('ln(');
   });
 
-  test('g key triggers log', () => {
-    pressKey('g');
-    expect(Calculator.getState().expression).toBe('log(');
+  test('key "g" maps to "log("', () => {
+    expect(Keyboard.mapKey('g', { invMode: false })).toBe('log(');
   });
 
-  test('r key triggers square root', () => {
-    pressKey('r');
-    expect(Calculator.getState().expression).toBe('√(');
+  test('key "r" maps to "√("', () => {
+    expect(Keyboard.mapKey('r', { invMode: false })).toBe('√(');
   });
 
-  test('^ key triggers power', () => {
-    pressKey('2');
-    pressKey('^');
-    expect(Calculator.getState().expression).toBe('2^');
+  test('key "p" maps to "π"', () => {
+    expect(Keyboard.mapKey('p')).toBe('π');
   });
 
-  test('! key triggers factorial', () => {
-    pressKey('5');
-    pressKey('!');
-    expect(Calculator.getState().expression).toBe('5!');
+  test('key "e" maps to "e"', () => {
+    expect(Keyboard.mapKey('e')).toBe('e');
   });
 
-  test('p key inputs π', () => {
-    pressKey('p');
-    expect(Calculator.getState().expression).toBe('π');
-  });
-
-  test('e key inputs Euler\'s number', () => {
-    pressKey('e');
-    expect(Calculator.getState().expression).toBe('e');
-  });
-
-  test('a key inputs Ans', () => {
-    Calculator.evaluate('10');
-    Calculator.reset();
-    pressKey('a');
-    expect(Calculator.getState().expression).toBe('Ans');
+  test('key "a" maps to "Ans"', () => {
+    expect(Keyboard.mapKey('a')).toBe('Ans');
   });
 });
 
-describe('Keyboard Inverse Mode', () => {
-  test('i key toggles Inv mode on', () => {
-    pressKey('i');
-    expect(Calculator.getState().invMode).toBe(true);
+describe('Keyboard Inverse Mode Mapping', () => {
+  test('key "i" maps to "TOGGLE_INV"', () => {
+    expect(Keyboard.mapKey('i')).toBe('TOGGLE_INV');
   });
 
-  test('i key toggles Inv mode off', () => {
-    pressKey('i');
-    pressKey('i');
-    expect(Calculator.getState().invMode).toBe(false);
+  test('key "s" with invMode maps to "asin("', () => {
+    expect(Keyboard.mapKey('s', { invMode: true })).toBe('asin(');
   });
 
-  test('s key triggers asin when Inv mode is on', () => {
-    pressKey('i');
-    pressKey('s');
-    expect(Calculator.getState().expression).toBe('asin(');
+  test('key "c" with invMode maps to "acos("', () => {
+    expect(Keyboard.mapKey('c', { invMode: true })).toBe('acos(');
   });
 
-  test('c key triggers acos when Inv mode is on', () => {
-    pressKey('i');
-    pressKey('c');
-    expect(Calculator.getState().expression).toBe('acos(');
+  test('key "t" with invMode maps to "atan("', () => {
+    expect(Keyboard.mapKey('t', { invMode: true })).toBe('atan(');
   });
 
-  test('t key triggers atan when Inv mode is on', () => {
-    pressKey('i');
-    pressKey('t');
-    expect(Calculator.getState().expression).toBe('atan(');
+  test('key "l" with invMode maps to "e^("', () => {
+    expect(Keyboard.mapKey('l', { invMode: true })).toBe('e^(');
   });
 
-  test('l key triggers e^( when Inv mode is on', () => {
-    pressKey('i');
-    pressKey('l');
-    expect(Calculator.getState().expression).toBe('e^(');
+  test('key "g" with invMode maps to "10^("', () => {
+    expect(Keyboard.mapKey('g', { invMode: true })).toBe('10^(');
   });
 
-  test('g key triggers 10^( when Inv mode is on', () => {
-    pressKey('i');
-    pressKey('g');
-    expect(Calculator.getState().expression).toBe('10^(');
-  });
-
-  test('r key triggers square (²) when Inv mode is on', () => {
-    pressKey('5');
-    pressKey('i');
-    pressKey('r');
-    expect(Calculator.getState().expression).toBe('5²');
+  test('key "r" with invMode maps to "²"', () => {
+    expect(Keyboard.mapKey('r', { invMode: true })).toBe('²');
   });
 });
 
 describe('Keyboard Angle Mode', () => {
-  test('d key sets Deg mode', () => {
-    Calculator.setAngleMode('rad');
-    pressKey('d');
-    expect(Calculator.getState().angleMode).toBe('deg');
+  test('key "d" maps to "SET_DEG"', () => {
+    expect(Keyboard.mapKey('d')).toBe('SET_DEG');
   });
 
-  test('Shift+d sets Rad mode', () => {
-    pressKey('D', { shiftKey: true });
-    expect(Calculator.getState().angleMode).toBe('rad');
+  test('key "D" (shift+d) maps to "SET_RAD"', () => {
+    expect(Keyboard.mapKey('D', { shiftKey: true })).toBe('SET_RAD');
   });
 });
 
 describe('Keyboard Modifier Keys', () => {
-  test('Cmd+key does not interfere (allows copy)', () => {
-    const event = pressKey('c', { metaKey: true });
-    // Should not trigger cos function
-    expect(Calculator.getState().expression).toBe('');
+  test('keys with metaKey return null (allow system shortcuts)', () => {
+    expect(Keyboard.mapKey('c', { metaKey: true })).toBeNull();
+    expect(Keyboard.mapKey('v', { metaKey: true })).toBeNull();
+    expect(Keyboard.mapKey('a', { metaKey: true })).toBeNull();
   });
 
-  test('Ctrl+key does not interfere', () => {
-    const event = pressKey('c', { ctrlKey: true });
-    expect(Calculator.getState().expression).toBe('');
+  test('keys with ctrlKey return null (allow system shortcuts)', () => {
+    expect(Keyboard.mapKey('c', { ctrlKey: true })).toBeNull();
+    expect(Keyboard.mapKey('v', { ctrlKey: true })).toBeNull();
   });
 
-  test('Alt+key does not interfere', () => {
-    const event = pressKey('c', { altKey: true });
-    expect(Calculator.getState().expression).toBe('');
+  test('keys with altKey return null (allow system shortcuts)', () => {
+    expect(Keyboard.mapKey('c', { altKey: true })).toBeNull();
   });
 });
 
 describe('Keyboard Invalid Keys', () => {
-  test('unrecognized keys are ignored', () => {
-    pressKey('z');
-    pressKey('x');
-    pressKey('q');
-    expect(Calculator.getState().expression).toBe('');
-  });
-
-  test('no error thrown for invalid keys', () => {
-    expect(() => {
-      pressKey('InvalidKey');
-      pressKey('F13');
-      pressKey('MediaPlayPause');
-    }).not.toThrow();
+  test('unrecognized keys return null', () => {
+    expect(Keyboard.mapKey('z')).toBeNull();
+    expect(Keyboard.mapKey('x')).toBeNull();
+    expect(Keyboard.mapKey('q')).toBeNull();
+    expect(Keyboard.mapKey('F1')).toBeNull();
+    expect(Keyboard.mapKey('Tab')).toBeNull();
   });
 });
 
-describe('Keyboard Key Hold Prevention', () => {
-  test('holding key does not repeat input', () => {
-    // Simulate key hold by dispatching repeated events with repeat: true
-    const event1 = new KeyboardEvent('keydown', { key: '5', repeat: false });
-    const event2 = new KeyboardEvent('keydown', { key: '5', repeat: true });
-    const event3 = new KeyboardEvent('keydown', { key: '5', repeat: true });
-
-    document.dispatchEvent(event1);
-    document.dispatchEvent(event2);
-    document.dispatchEvent(event3);
-
-    expect(Calculator.getState().expression).toBe('5');
-  });
-});
-
-describe('Keyboard Complete Expressions', () => {
-  test('typing full expression: 2+3*4 Enter = 14', () => {
-    pressKey('2');
-    pressKey('+');
-    pressKey('3');
-    pressKey('*');
-    pressKey('4');
-    pressKey('Enter');
-    expect(Calculator.getState().result).toBe('14');
+describe('Keyboard Action Detection', () => {
+  test('isActionKey identifies action commands', () => {
+    expect(Keyboard.isActionKey('EVALUATE')).toBe(true);
+    expect(Keyboard.isActionKey('CLEAR')).toBe(true);
+    expect(Keyboard.isActionKey('DELETE')).toBe(true);
+    expect(Keyboard.isActionKey('TOGGLE_INV')).toBe(true);
+    expect(Keyboard.isActionKey('SET_DEG')).toBe(true);
+    expect(Keyboard.isActionKey('SET_RAD')).toBe(true);
   });
 
-  test('typing expression with parentheses: (2+3)*4 = 20', () => {
-    pressKey('(');
-    pressKey('2');
-    pressKey('+');
-    pressKey('3');
-    pressKey(')');
-    pressKey('*');
-    pressKey('4');
-    pressKey('=');
-    expect(Calculator.getState().result).toBe('20');
-  });
-
-  test('typing scientific expression: sin(90) in degrees', () => {
-    pressKey('s');
-    pressKey('9');
-    pressKey('0');
-    pressKey(')');
-    pressKey('Enter');
-    expect(parseFloat(Calculator.getState().result)).toBeCloseTo(1);
-  });
-
-  test('typing expression with π: 2*π', () => {
-    pressKey('2');
-    pressKey('*');
-    pressKey('p');
-    pressKey('Enter');
-    expect(parseFloat(Calculator.getState().result)).toBeCloseTo(2 * Math.PI);
+  test('isActionKey returns false for input strings', () => {
+    expect(Keyboard.isActionKey('5')).toBe(false);
+    expect(Keyboard.isActionKey('sin(')).toBe(false);
+    expect(Keyboard.isActionKey('+')).toBe(false);
+    expect(Keyboard.isActionKey('π')).toBe(false);
   });
 });

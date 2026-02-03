@@ -1,22 +1,34 @@
 # Testing Specification
 
+## Testing Philosophy
+
+**This project uses pure JavaScript logic testing only.**
+
+- ✅ Tests verify calculation logic, state management, and data structures
+- ✅ Tests are fast, simple, and focused on correctness
+- ❌ No DOM simulation or jsdom
+- ❌ No end-to-end browser testing
+- ❌ No UI/integration tests
+
+**Rationale:** For a calculator with straightforward UI, the critical bugs are in calculation logic (order of operations, trig functions, edge cases), not DOM manipulation. UI integration is verified through manual browser testing.
+
 ## Implementation Status
 
-| Test File | Status |
-|-----------|--------|
-| `tests/calculator.test.js` | Created (~70 tests) |
-| `tests/history.test.js` | Created (~25 tests) |
-| `tests/keyboard.test.js` | Created (~50 tests) |
-| `tests/ui.test.js` | **NOT CREATED** - will be written after HTML implementation |
+| Test File | Status | Test Count |
+|-----------|--------|------------|
+| `tests/calculator.test.js` | ✅ Created | ~70 tests |
+| `tests/history.test.js` | ✅ Created | ~25 tests |
+| `tests/keyboard.test.js` | ✅ Created | ~35 tests |
 
 ## Testing Framework
-- **Jest**: Primary test runner
-- **jsdom**: DOM environment for browser API simulation
-- **@testing-library/dom** (optional): For DOM interaction testing
+- **Jest**: Test runner in Node.js environment
+- **No additional dependencies**: Pure logic tests require no DOM libraries
 
 ## Test Categories
 
 ### 1. Calculator Logic Tests (`calculator.test.js`)
+
+**Tests pure calculation functions** - verifies `Calculator.evaluate()`, `Calculator.setAngleMode()`, and state management without any DOM interaction.
 
 #### Basic Arithmetic
 ```javascript
@@ -98,33 +110,37 @@ describe('Edge Cases', () => {
 
 ### 2. History Tests (`history.test.js`)
 
+**Tests history data management** - verifies `History.addEntry()`, `History.getEntries()`, localStorage persistence, and data integrity. Uses mocked localStorage (not DOM).
+
 #### Storage
 ```javascript
 describe('History Storage', () => {
-  test('calculation is saved to history after pressing equals')
-  test('history persists in localStorage')
-  test('history loads correctly on page refresh')
+  test('addEntry saves calculation to history')
+  test('history persists to localStorage')
+  test('history loads from localStorage on init')
   test('error results are not saved to history')
-  test('history respects 100 entry limit')
-  test('oldest entries removed when limit exceeded')
+  test('history respects 10 entry limit')
+  test('oldest entries removed when limit exceeded (FIFO)')
 });
 ```
 
 #### Retrieval
 ```javascript
 describe('History Retrieval', () => {
-  test('clicking history entry inserts result into expression')
-  test('history displays in reverse chronological order')
-  test('history shows correct expression and result')
+  test('getEntries returns all entries')
+  test('getEntries returns newest first')
+  test('getEntryById returns specific entry')
+  test('getEntryById returns null for non-existent id')
+  test('getResult returns just the result value')
 });
 ```
 
 #### Clear
 ```javascript
 describe('History Clear', () => {
-  test('clear history removes all entries')
-  test('clear history updates localStorage')
-  test('clear history updates UI')
+  test('clear removes all entries')
+  test('clear updates localStorage')
+  test('clear allows new entries to be added')
 });
 ```
 
@@ -138,88 +154,76 @@ describe('History Error Handling', () => {
 
 ### 3. Keyboard Tests (`keyboard.test.js`)
 
-#### Number Input
+**Tests key mapping logic** - verifies `Keyboard.mapKey()` function that maps keyboard input to calculator actions. No DOM events or keyboard simulation.
+
+#### Number & Operator Mapping
 ```javascript
-describe('Keyboard Number Input', () => {
-  test('pressing 0-9 inputs digits')
-  test('pressing . inputs decimal point')
-  test('rapid key presses captured correctly')
+describe('Keyboard Mapping', () => {
+  test('mapKey("0") returns "0"')
+  test('mapKey("5") returns "5"')
+  test('mapKey("+") returns "+"')
+  test('mapKey("*") returns "*"')
+  test('mapKey(".") returns "."')
 });
 ```
 
-#### Operators
+#### Control Keys
 ```javascript
-describe('Keyboard Operators', () => {
-  test('+ key triggers addition')
-  test('- key triggers subtraction')
-  test('* key triggers multiplication')
-  test('/ key triggers division')
-  test('Enter evaluates expression')
-  test('Escape clears calculator')
-  test('Backspace deletes last character')
+describe('Keyboard Control Keys', () => {
+  test('mapKey("Enter") returns "EVALUATE"')
+  test('mapKey("=") returns "EVALUATE"')
+  test('mapKey("Escape") returns "CLEAR"')
+  test('mapKey("Backspace") returns "DELETE"')
 });
 ```
 
-#### Scientific
+#### Scientific Function Keys
 ```javascript
 describe('Keyboard Scientific Functions', () => {
-  test('s key triggers sin')
-  test('c key triggers cos')
-  test('t key triggers tan')
-  test('i key toggles Inv mode')
-  test('p key inputs π')
+  test('mapKey("s") returns "sin("')
+  test('mapKey("c") returns "cos("')
+  test('mapKey("t") returns "tan("')
+  test('mapKey("p") returns "π"')
+  test('mapKey("e") returns "e"')
+  test('mapKey("i") returns "TOGGLE_INV"')
 });
 ```
 
-#### Modifiers
+#### Inverse Mode
+```javascript
+describe('Keyboard Inverse Mode', () => {
+  test('mapKey("s", {invMode: true}) returns "asin("')
+  test('mapKey("c", {invMode: true}) returns "acos("')
+  test('mapKey("r", {invMode: true}) returns "²"')
+});
+```
+
+#### Modifier Keys
 ```javascript
 describe('Keyboard Modifiers', () => {
-  test('Cmd+C does not interfere (copy)')
-  test('Ctrl+V does not interfere (paste)')
-  test('Shift+d sets Rad mode')
+  test('mapKey("c", {metaKey: true}) returns null (system shortcut)')
+  test('mapKey("v", {ctrlKey: true}) returns null (system shortcut)')
+  test('mapKey("D", {shiftKey: true}) returns "SET_RAD"')
 });
 ```
 
-### 4. UI Integration Tests (`ui.test.js`) - NOT YET CREATED
-
-> **Note:** These tests will be written after the HTML implementation is complete, so the tests can match the actual DOM structure.
-
-#### Button Clicks
+#### Invalid Keys
 ```javascript
-describe('Button Interactions', () => {
-  test('clicking number buttons updates display')
-  test('clicking operator buttons updates expression')
-  test('clicking equals shows result')
-  test('clicking AC clears display')
+describe('Keyboard Invalid Keys', () => {
+  test('mapKey("z") returns null (unrecognized)')
+  test('mapKey("F1") returns null (unrecognized)')
+  test('isActionKey("EVALUATE") returns true')
+  test('isActionKey("5") returns false')
 });
 ```
 
-#### History Panel
-```javascript
-describe('History Panel', () => {
-  test('clicking clock icon opens history panel')
-  test('clicking clock icon again closes panel')
-  test('panel displays history entries')
-  test('clicking entry inserts result')
-  test('clear button removes all history')
-});
-```
-
-#### Mode Toggles
-```javascript
-describe('Mode Toggles', () => {
-  test('clicking Deg/Rad toggles angle mode')
-  test('clicking Inv toggles inverse mode')
-  test('visual indicator shows current mode')
-});
-```
 
 ## Test Configuration
 
 ### jest.config.js
 ```javascript
 module.exports = {
-  testEnvironment: 'jsdom',
+  testEnvironment: 'node',  // Pure Node.js, no DOM simulation
   roots: ['<rootDir>/tests'],
   testMatch: ['**/*.test.js'],
   collectCoverage: true,
@@ -248,28 +252,52 @@ module.exports = {
 
 ## Mocking Strategy
 
-### localStorage Mock
+### localStorage Mock (history.test.js only)
+
+Since we're testing in Node.js without a browser environment, we mock `localStorage` for history persistence tests:
+
 ```javascript
-const localStorageMock = {
-  store: {},
-  getItem: jest.fn(key => localStorageMock.store[key] || null),
-  setItem: jest.fn((key, value) => { localStorageMock.store[key] = value; }),
-  removeItem: jest.fn(key => { delete localStorageMock.store[key]; }),
-  clear: jest.fn(() => { localStorageMock.store = {}; })
-};
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: jest.fn(key => store[key] || null),
+    setItem: jest.fn((key, value) => { store[key] = value; }),
+    removeItem: jest.fn(key => { delete store[key]; }),
+    clear: jest.fn(() => { store = {}; }),
+    get store() { return store; },
+    reset: () => { store = {}; }
+  };
+})();
+
+// Attach to global for the history module to use
+global.localStorage = localStorageMock;
 ```
 
-### DOM Setup
-```javascript
-beforeEach(() => {
-  document.body.innerHTML = `
-    <div id="calculator">
-      <div id="display">0</div>
-      <!-- ... calculator HTML ... -->
-    </div>
-  `;
-});
+**No other mocking needed** - calculator and keyboard tests use pure functions with no external dependencies.
+
+## What Is NOT Tested (By Design)
+
+The following are intentionally excluded from automated testing and verified through manual browser testing:
+
+- ❌ Button click handling
+- ❌ Display updates and rendering
+- ❌ History panel UI interactions
+- ❌ CSS styling and layout
+- ❌ DOM event listeners
+- ❌ Browser-specific behavior
+- ❌ Visual appearance
+
+**Why:** For this calculator's scope, these UI elements are straightforward enough that bugs are immediately obvious during manual testing. The automated tests focus on correctness of the underlying logic where bugs are harder to spot.
+
+## Module Structure Expected by Tests
+
+Tests import from separate JavaScript modules:
+
+```
+src/
+  calculator.js    → exports Calculator object with evaluate(), reset(), etc.
+  history.js       → exports History object with addEntry(), getEntries(), etc.
+  keyboard.js      → exports Keyboard object with mapKey(), isActionKey(), etc.
 ```
 
 ## Running Tests

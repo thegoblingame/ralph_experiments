@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Google Sans', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background-color: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .calculator {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+      padding: 20px;
+      position: relative;
+    }
+
+    .display {
+      background: #f1f3f4;
+      border-radius: 24px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 80px;
+      position: relative;
+    }
+
+    .history-icon {
+      cursor: pointer;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #5f6368;
+      font-size: 20px;
+      user-select: none;
+    }
+
+    .history-icon:hover {
+      color: #202124;
+    }
+
+    .display-value {
+      flex: 1;
+      text-align: right;
+      font-size: 40px;
+      color: #202124;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      line-height: 1.2;
+    }
+
+    .history-panel {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      margin-top: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+
+    .history-panel.active {
+      display: block;
+    }
+
+    .history-entry {
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+      border-bottom: 1px solid #f1f3f4;
+    }
+
+    .history-entry:hover {
+      background: #f8f9fa;
+    }
+
+    .history-entry:last-child {
+      border-bottom: none;
+    }
+
+    .history-expression {
+      color: #5f6368;
+      margin-right: 12px;
+    }
+
+    .history-result {
+      color: #202124;
+      font-weight: 500;
+    }
+
+    .history-empty {
+      padding: 24px;
+      text-align: center;
+      color: #5f6368;
+    }
+
+    .history-clear {
+      padding: 12px;
+      text-align: center;
+      border-top: 1px solid #f1f3f4;
+      cursor: pointer;
+      color: #1a73e8;
+      font-weight: 500;
+    }
+
+    .history-clear:hover {
+      background: #f8f9fa;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    button {
+      border: none;
+      border-radius: 24px;
+      padding: 16px 0;
+      font-size: 16px;
+      font-family: inherit;
+      cursor: pointer;
+      background: #f1f3f4;
+      color: #202124;
+      transition: background-color 0.1s;
+      user-select: none;
+    }
+
+    button:hover {
+      filter: brightness(0.95);
+    }
+
+    button:active {
+      filter: brightness(0.9);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-scientific {
+      background: #d2e3fc;
+    }
+
+    .btn-operator {
+      background: #d2e3fc;
+    }
+
+    .btn-equals {
+      background: #4285f4;
+      color: white;
+    }
+
+    .btn-equals:hover {
+      background: #3b78e7;
+    }
+
+    .btn-deg {
+      color: #1a73e8;
+      font-weight: 600;
+    }
+
+    .btn-rad {
+      color: #5f6368;
+    }
+
+    .btn-inv {
+      background: #d2e3fc;
+    }
+
+    .btn-inv.active {
+      background: #4285f4;
+      color: white;
+    }
+
+    .btn-wide {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 480px) {
+      .calculator {
+        max-width: 100%;
+      }
+
+      .display-value {
+        font-size: 32px;
+      }
+
+      button {
+        font-size: 14px;
+        padding: 12px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display">
+      <div class="history-icon" id="historyIcon">🕐</div>
+      <div class="display-value" id="display">0</div>
+      <div class="history-panel" id="historyPanel">
+        <div id="historyEntries"></div>
+        <div class="history-clear" id="historyClear">Clear History</div>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <!-- Row 1 -->
+      <button id="degRadBtn" class="btn-deg">Deg</button>
+      <button data-input="!">x!</button>
+      <button data-input="(">(</button>
+      <button data-input=")">)</button>
+      <button data-input="%">%</button>
+      <button data-action="clear" class="btn-wide">AC</button>
+
+      <!-- Row 2 -->
+      <button id="invBtn" class="btn-inv">Inv</button>
+      <button id="sinBtn" class="btn-scientific">sin</button>
+      <button id="lnBtn" class="btn-scientific">ln</button>
+      <button data-input="7">7</button>
+      <button data-input="8">8</button>
+      <button data-input="9">9</button>
+      <button data-input="÷" class="btn-operator">÷</button>
+
+      <!-- Row 3 -->
+      <button data-input="π" class="btn-scientific">π</button>
+      <button id="cosBtn" class="btn-scientific">cos</button>
+      <button id="logBtn" class="btn-scientific">log</button>
+      <button data-input="4">4</button>
+      <button data-input="5">5</button>
+      <button data-input="6">6</button>
+      <button data-input="×" class="btn-operator">×</button>
+
+      <!-- Row 4 -->
+      <button data-input="e" class="btn-scientific">e</button>
+      <button id="tanBtn" class="btn-scientific">tan</button>
+      <button id="sqrtBtn" class="btn-scientific">√</button>
+      <button data-input="1">1</button>
+      <button data-input="2">2</button>
+      <button data-input="3">3</button>
+      <button data-input="-" class="btn-operator">-</button>
+
+      <!-- Row 5 -->
+      <button data-input="Ans" class="btn-scientific">Ans</button>
+      <button id="expBtn" class="btn-scientific">EXP</button>
+      <button id="powerBtn" class="btn-scientific">x^y</button>
+      <button data-input="0">0</button>
+      <button data-input=".">.</button>
+      <button data-action="equals" class="btn-equals">=</button>
+      <button data-input="+" class="btn-operator">+</button>
+    </div>
+  </div>
+
+  <script>
+    // Embedded Calculator Logic Module
+    let state = {
+      expression: '',
+      result: '0',
+      lastResult: 0,
+      angleMode: 'deg',
+      invMode: false
+    };
+
+    function reset() {
+      state = {
+        expression: '',
+        result: '0',
+        lastResult: 0,
+        angleMode: 'deg',
+        invMode: false
+      };
+    }
+
+    function getState() {
+      return { ...state };
+    }
+
+    function setAngleMode(mode) {
+      if (mode === 'deg' || mode === 'rad') {
+        state.angleMode = mode;
+      }
+    }
+
+    function degToRad(degrees) {
+      return degrees * (Math.PI / 180);
+    }
+
+    function radToDeg(radians) {
+      return radians * (180 / Math.PI);
+    }
+
+    function factorial(n) {
+      if (n < 0) throw new Error('Factorial of negative number');
+      if (!Number.isInteger(n)) throw new Error('Factorial of non-integer');
+      if (n === 0 || n === 1) return 1;
+      let result = 1;
+      for (let i = 2; i <= n; i++) {
+        result *= i;
+      }
+      return result;
+    }
+
+    function evaluate(expr) {
+      try {
+        if (!expr || expr.trim() === '') {
+          return 0;
+        }
+
+        let processedExpr = expr
+          .replace(/×/g, '*')
+          .replace(/÷/g, '/')
+          .replace(/Ans/g, state.lastResult.toString());
+
+        processedExpr = processedExpr.replace(/(\d)(π|e(?![E\d]))/g, '$1*$2');
+        processedExpr = processedExpr.replace(/π/g, Math.PI.toString());
+        processedExpr = processedExpr.replace(/(\d+\.?\d*)%/g, '($1/100)');
+
+        processedExpr = processedExpr.replace(/-(\d+\.?\d*)!/g, (match, num) => {
+          return 'factorial(-' + num + ')';
+        });
+        processedExpr = processedExpr.replace(/(\d+\.?\d*)!/g, (match, num) => {
+          return `factorial(${num})`;
+        });
+
+        processedExpr = processedExpr.replace(/(\d+\.?\d*)²/g, '($1**2)');
+        processedExpr = processedExpr.replace(/³√(\d+\.?\d*)/g, '(Math.pow($1, 1/3))');
+        processedExpr = processedExpr.replace(/³√\(([^)]+)\)/g, '(Math.pow($1, 1/3))');
+        processedExpr = processedExpr.replace(/⁴√(\d+\.?\d*)/g, '(Math.pow($1, 1/4))');
+        processedExpr = processedExpr.replace(/⁴√\(([^)]+)\)/g, '(Math.pow($1, 1/4))');
+        processedExpr = processedExpr.replace(/√(\d+\.?\d*)/g, 'Math.sqrt($1)');
+        processedExpr = processedExpr.replace(/√\(([^)]+)\)/g, 'Math.sqrt($1)');
+        processedExpr = processedExpr.replace(/\^/g, '**');
+
+        processedExpr = processedExpr.replace(/Math\.E/g, '__MATH_E__');
+        processedExpr = processedExpr.replace(/(\d+\.?\d*)E([+-]?\d+)/gi, '__SCI_$1_E_$2__');
+        processedExpr = processedExpr.replace(/\be\b/g, Math.E.toString());
+        processedExpr = processedExpr.replace(/__MATH_E__/g, Math.E.toString());
+        processedExpr = processedExpr.replace(/__SCI_(\d+\.?\d*)_E_([+-]?\d+)__/gi, '$1E$2');
+
+        const customFunctions = {
+          sin: (x) => {
+            const angle = state.angleMode === 'deg' ? degToRad(x) : x;
+            return Math.sin(angle);
+          },
+          cos: (x) => {
+            const angle = state.angleMode === 'deg' ? degToRad(x) : x;
+            return Math.cos(angle);
+          },
+          tan: (x) => {
+            const angle = state.angleMode === 'deg' ? degToRad(x) : x;
+            return Math.tan(angle);
+          },
+          asin: (x) => {
+            if (x < -1 || x > 1) throw new Error('asin out of range');
+            const result = Math.asin(x);
+            return state.angleMode === 'deg' ? radToDeg(result) : result;
+          },
+          acos: (x) => {
+            if (x < -1 || x > 1) throw new Error('acos out of range');
+            const result = Math.acos(x);
+            return state.angleMode === 'deg' ? radToDeg(result) : result;
+          },
+          atan: (x) => {
+            const result = Math.atan(x);
+            return state.angleMode === 'deg' ? radToDeg(result) : result;
+          },
+          ln: (x) => {
+            if (x <= 0) throw new Error('ln of non-positive number');
+            return Math.log(x);
+          },
+          log: (x) => {
+            if (x <= 0) throw new Error('log of non-positive number');
+            return Math.log10(x);
+          },
+          sqrt: (x) => {
+            if (x < 0) throw new Error('sqrt of negative number');
+            return Math.sqrt(x);
+          },
+          factorial: factorial
+        };
+
+        const result = Function(
+          ...Object.keys(customFunctions),
+          `'use strict'; return (${processedExpr});`
+        )(...Object.values(customFunctions));
+
+        if (!isFinite(result)) {
+          if (processedExpr.includes('/0') || String(result) === 'Infinity') {
+            return 'Error';
+          }
+          return 'Error';
+        }
+
+        state.lastResult = result;
+        state.result = String(result);
+
+        return result;
+      } catch (error) {
+        return 'Error';
+      }
+    }
+
+    // Embedded History Module
+    const STORAGE_KEY = 'calculator_history';
+    const MAX_ENTRIES = 10;
+    let historyEntries = [];
+
+    function addEntry(expression, result) {
+      if (result === 'Error' || result === 'Infinity' || result === '-Infinity') {
+        return;
+      }
+
+      const entry = {
+        id: generateId(),
+        expression,
+        result,
+        timestamp: Date.now()
+      };
+
+      historyEntries.unshift(entry);
+
+      if (historyEntries.length > MAX_ENTRIES) {
+        historyEntries = historyEntries.slice(0, MAX_ENTRIES);
+      }
+
+      saveHistory();
+    }
+
+    function getEntries() {
+      return historyEntries.map(entry => ({ ...entry }));
+    }
+
+    function clearHistory() {
+      historyEntries = [];
+      saveHistory();
+    }
+
+    function loadHistory() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) {
+          historyEntries = [];
+          return;
+        }
+
+        const parsed = JSON.parse(stored);
+
+        if (!Array.isArray(parsed)) {
+          historyEntries = [];
+          return;
+        }
+
+        historyEntries = parsed.filter(entry =>
+          entry &&
+          entry.id &&
+          entry.expression &&
+          entry.result &&
+          entry.timestamp
+        );
+      } catch (e) {
+        historyEntries = [];
+      }
+    }
+
+    function saveHistory() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(historyEntries));
+      } catch (e) {
+        // Silently fail
+      }
+    }
+
+    function generateId() {
+      return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // Embedded Keyboard Module
+    function mapKey(key, options = {}) {
+      const { invMode = false, shiftKey = false, metaKey = false, ctrlKey = false, altKey = false } = options;
+
+      if (metaKey || ctrlKey || altKey) {
+        return null;
+      }
+
+      if (/^[0-9]$/.test(key)) {
+        return key;
+      }
+
+      if (key === '.') return '.';
+      if (key === '+') return '+';
+      if (key === '-') return '-';
+      if (key === '*') return '*';
+      if (key === '/') return '/';
+      if (key === '%') return '%';
+      if (key === '(') return '(';
+      if (key === ')') return ')';
+      if (key === '^') return '^';
+      if (key === '!') return '!';
+
+      if (key === 'Enter' || key === '=') return 'EVALUATE';
+      if (key === 'Escape') return 'CLEAR';
+      if (key === 'Backspace' || key === 'Delete') return 'DELETE';
+
+      if (key === 'i') return 'TOGGLE_INV';
+      if (key === 'd' && !shiftKey) return 'SET_DEG';
+      if (key === 'D' || (key === 'd' && shiftKey)) return 'SET_RAD';
+
+      if (key === 's') return invMode ? 'asin(' : 'sin(';
+      if (key === 'c') return invMode ? 'acos(' : 'cos(';
+      if (key === 't') return invMode ? 'atan(' : 'tan(';
+      if (key === 'l') return invMode ? 'e^(' : 'ln(';
+      if (key === 'g') return invMode ? '10^(' : 'log(';
+      if (key === 'r') return invMode ? '²' : '√(';
+
+      if (key === 'p') return 'π';
+      if (key === 'e') return 'e';
+      if (key === 'a') return 'Ans';
+
+      return null;
+    }
+
+    // UI Controller
+    const display = document.getElementById('display');
+    const historyIcon = document.getElementById('historyIcon');
+    const historyPanel = document.getElementById('historyPanel');
+    const historyEntriesDiv = document.getElementById('historyEntries');
+    const historyClearBtn = document.getElementById('historyClear');
+    const degRadBtn = document.getElementById('degRadBtn');
+    const invBtn = document.getElementById('invBtn');
+    const sinBtn = document.getElementById('sinBtn');
+    const cosBtn = document.getElementById('cosBtn');
+    const tanBtn = document.getElementById('tanBtn');
+    const lnBtn = document.getElementById('lnBtn');
+    const logBtn = document.getElementById('logBtn');
+    const sqrtBtn = document.getElementById('sqrtBtn');
+    const powerBtn = document.getElementById('powerBtn');
+    const expBtn = document.getElementById('expBtn');
+
+    let currentExpression = '';
+
+    function updateDisplay() {
+      display.textContent = currentExpression || '0';
+    }
+
+    function updateInvButtons() {
+      if (state.invMode) {
+        invBtn.classList.add('active');
+        sinBtn.textContent = 'asin';
+        cosBtn.textContent = 'acos';
+        tanBtn.textContent = 'atan';
+        lnBtn.textContent = 'e^x';
+        logBtn.textContent = '10^x';
+        sqrtBtn.textContent = 'x²';
+      } else {
+        invBtn.classList.remove('active');
+        sinBtn.textContent = 'sin';
+        cosBtn.textContent = 'cos';
+        tanBtn.textContent = 'tan';
+        lnBtn.textContent = 'ln';
+        logBtn.textContent = 'log';
+        sqrtBtn.textContent = '√';
+      }
+    }
+
+    function updateDegRadButton() {
+      if (state.angleMode === 'deg') {
+        degRadBtn.textContent = 'Deg';
+        degRadBtn.classList.add('btn-deg');
+        degRadBtn.classList.remove('btn-rad');
+      } else {
+        degRadBtn.textContent = 'Rad';
+        degRadBtn.classList.remove('btn-deg');
+        degRadBtn.classList.add('btn-rad');
+      }
+    }
+
+    function renderHistory() {
+      const entries = getEntries();
+
+      if (entries.length === 0) {
+        historyEntriesDiv.innerHTML = '<div class="history-empty">No history yet</div>';
+      } else {
+        historyEntriesDiv.innerHTML = entries.map(entry => `
+          <div class="history-entry" data-result="${entry.result}">
+            <span class="history-expression">${entry.expression}</span>
+            <span class="history-result">= ${entry.result}</span>
+          </div>
+        `).join('');
+
+        // Add click handlers to history entries
+        document.querySelectorAll('.history-entry').forEach(entryEl => {
+          entryEl.addEventListener('click', () => {
+            const result = entryEl.getAttribute('data-result');
+            currentExpression += result;
+            updateDisplay();
+            historyPanel.classList.remove('active');
+          });
+        });
+      }
+    }
+
+    function handleInput(input) {
+      currentExpression += input;
+      updateDisplay();
+    }
+
+    function handleClear() {
+      currentExpression = '';
+      reset();
+      updateDisplay();
+      updateInvButtons();
+      updateDegRadButton();
+    }
+
+    function handleDelete() {
+      // Handle multi-character functions
+      const patterns = ['sin(', 'cos(', 'tan(', 'asin(', 'acos(', 'atan(', 'ln(', 'log(', 'sqrt(', '10^(', 'e^(', 'Ans'];
+
+      for (const pattern of patterns) {
+        if (currentExpression.endsWith(pattern)) {
+          currentExpression = currentExpression.slice(0, -pattern.length);
+          updateDisplay();
+          return;
+        }
+      }
+
+      // Single character delete
+      currentExpression = currentExpression.slice(0, -1);
+      updateDisplay();
+    }
+
+    function handleEquals() {
+      if (!currentExpression) return;
+
+      const result = evaluate(currentExpression);
+
+      if (result !== 'Error') {
+        addEntry(currentExpression, String(result));
+        renderHistory();
+        currentExpression = String(result);
+      } else {
+        currentExpression = 'Error';
+      }
+
+      updateDisplay();
+    }
+
+    function handleScientificFunction(func) {
+      if (state.invMode) {
+        // Inverse mode functions
+        if (func === 'sin') currentExpression += 'asin(';
+        else if (func === 'cos') currentExpression += 'acos(';
+        else if (func === 'tan') currentExpression += 'atan(';
+        else if (func === 'ln') currentExpression += 'e^(';
+        else if (func === 'log') currentExpression += '10^(';
+        else if (func === 'sqrt') currentExpression += '²';
+        else currentExpression += func + '(';
+      } else {
+        // Normal functions
+        if (func === 'sqrt') currentExpression += '√(';
+        else currentExpression += func + '(';
+      }
+      updateDisplay();
+    }
+
+    // Event Listeners
+    document.querySelectorAll('button[data-input]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        handleInput(btn.getAttribute('data-input'));
+      });
+    });
+
+    document.querySelectorAll('button[data-action]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.getAttribute('data-action');
+        if (action === 'clear') handleClear();
+        else if (action === 'equals') handleEquals();
+      });
+    });
+
+    degRadBtn.addEventListener('click', () => {
+      state.angleMode = state.angleMode === 'deg' ? 'rad' : 'deg';
+      updateDegRadButton();
+    });
+
+    invBtn.addEventListener('click', () => {
+      state.invMode = !state.invMode;
+      updateInvButtons();
+    });
+
+    sinBtn.addEventListener('click', () => handleScientificFunction('sin'));
+    cosBtn.addEventListener('click', () => handleScientificFunction('cos'));
+    tanBtn.addEventListener('click', () => handleScientificFunction('tan'));
+    lnBtn.addEventListener('click', () => handleScientificFunction('ln'));
+    logBtn.addEventListener('click', () => handleScientificFunction('log'));
+    sqrtBtn.addEventListener('click', () => handleScientificFunction('sqrt'));
+
+    powerBtn.addEventListener('click', () => {
+      currentExpression += '^';
+      updateDisplay();
+    });
+
+    expBtn.addEventListener('click', () => {
+      currentExpression += 'E';
+      updateDisplay();
+    });
+
+    historyIcon.addEventListener('click', () => {
+      historyPanel.classList.toggle('active');
+      if (historyPanel.classList.contains('active')) {
+        renderHistory();
+      }
+    });
+
+    historyClearBtn.addEventListener('click', () => {
+      clearHistory();
+      renderHistory();
+    });
+
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+      const mapped = mapKey(e.key, {
+        invMode: state.invMode,
+        shiftKey: e.shiftKey,
+        metaKey: e.metaKey,
+        ctrlKey: e.ctrlKey,
+        altKey: e.altKey
+      });
+
+      if (!mapped) return;
+
+      e.preventDefault();
+
+      if (mapped === 'EVALUATE') {
+        handleEquals();
+      } else if (mapped === 'CLEAR') {
+        handleClear();
+      } else if (mapped === 'DELETE') {
+        handleDelete();
+      } else if (mapped === 'TOGGLE_INV') {
+        state.invMode = !state.invMode;
+        updateInvButtons();
+      } else if (mapped === 'SET_DEG') {
+        state.angleMode = 'deg';
+        updateDegRadButton();
+      } else if (mapped === 'SET_RAD') {
+        state.angleMode = 'rad';
+        updateDegRadButton();
+      } else {
+        handleInput(mapped);
+      }
+    });
+
+    // Initialize
+    loadHistory();
+    updateDisplay();
+    updateInvButtons();
+    updateDegRadButton();
+  </script>
+</body>
+</html>

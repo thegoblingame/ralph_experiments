@@ -1,14 +1,13 @@
 /**
  * Calculator Logic Tests
  * Tests for core calculation functionality
+ * Pure logic tests - no DOM simulation
  */
 
-// The calculator module will expose these functions
-let Calculator;
+const Calculator = require('../src/calculator');
 
 beforeEach(() => {
   // Reset calculator state before each test
-  Calculator = require('../public/calculator.html').Calculator;
   Calculator.reset();
 });
 

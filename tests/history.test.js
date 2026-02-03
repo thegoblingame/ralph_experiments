@@ -1,9 +1,10 @@
 /**
  * History Feature Tests
  * Tests for calculation history and localStorage persistence
+ * Pure logic tests - no DOM simulation
  */
 
-let History;
+const History = require('../src/history');
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -18,13 +19,13 @@ const localStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+// Mock global localStorage for the module
+global.localStorage = localStorageMock;
 
 beforeEach(() => {
   localStorageMock.reset();
   localStorageMock.getItem.mockClear();
   localStorageMock.setItem.mockClear();
-  History = require('../public/calculator.html').History;
   History.clear();
 });
 
